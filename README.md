@@ -59,11 +59,48 @@ Sem ativar o ambiente, é possível rodar em uma linha só (Windows):
 > Se o Windows bloquear o `Activate.ps1` por política de execução, rode uma vez:
 > `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` (ou use a forma de uma linha só acima).
 
+## Gerar o executável Windows (.exe)
+
+É possível empacotar a aplicação em um executável para distribuir a usuários
+que **não têm Python instalado**. O `.exe` sobe o servidor do Streamlit e abre
+o navegador automaticamente (o app continua sendo uma aplicação web local).
+
+Com o ambiente virtual criado (passo de instalação acima), a partir da pasta do
+projeto no **PowerShell**:
+
+```powershell
+.\build_exe.ps1
+```
+
+O build leva alguns minutos (empacota Python + bibliotecas). Ao final, o
+resultado fica em:
+
+```
+dist\InvestmentAdvisorsML\InvestmentAdvisorsML.exe
+```
+
+Para executar, basta dar **duplo clique** no `InvestmentAdvisorsML.exe`. Uma
+janela de terminal abre (o servidor) e o navegador é aberto em
+**http://localhost:8501**. Para encerrar, feche essa janela de terminal.
+
+> **Distribuição:** entregue a pasta `dist\InvestmentAdvisorsML\` **inteira**
+> (não apenas o `.exe`) — ela contém as bibliotecas e os dados necessários.
+> Pode-se compactá-la em `.zip`.
+>
+> **Internet:** o executável também precisa de conexão, pois baixa os preços
+> dos ativos via Yahoo Finance a cada execução.
+
+Detalhes internos: o ponto de entrada é `run_app.py` e a configuração do
+empacotamento está em `InvestmentAdvisorsML.spec`.
+
 ## Estrutura
 
 ```
-streamlit_app.py    # aplicação Streamlit
-parameters.json     # hiperparâmetros dos modelos
-requirements.txt    # dependências
-dataset/            # códigos (tickers) e nomes dos ativos do IBOV
+streamlit_app.py          # aplicação Streamlit
+run_app.py                # ponto de entrada do executável (.exe)
+InvestmentAdvisorsML.spec # configuração do PyInstaller
+build_exe.ps1             # script para gerar o .exe
+parameters.json           # hiperparâmetros dos modelos
+requirements.txt          # dependências
+dataset/                  # códigos (tickers) e nomes dos ativos do IBOV
 ```

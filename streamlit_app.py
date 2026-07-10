@@ -2,6 +2,7 @@
 # Refatoração do dashboard originalmente escrito em Dash (app.py)
 
 import json
+import os
 
 import numpy as np
 import pandas as pd
@@ -21,8 +22,11 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-DATASET_FILENAME = "dataset/Brazillian_Ticker_Codes_IBOV.csv"
-PARAMETERS_FILENAME = "parameters.json"
+# Caminhos resolvidos relativamente a este arquivo, para funcionar tanto ao rodar
+# via `streamlit run` quanto empacotado com o PyInstaller (.exe).
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_FILENAME = os.path.join(BASE_DIR, "dataset", "Brazillian_Ticker_Codes_IBOV.csv")
+PARAMETERS_FILENAME = os.path.join(BASE_DIR, "parameters.json")
 
 # Cor tema (cerulean) herdada da versão Dash
 THEME_COLOR = "#2fa4e7"
@@ -169,14 +173,14 @@ with st.sidebar:
 
     year = st.selectbox(
         "Selecione desde que ano os dados serão baixados:",
-        [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022],
-        index=3,  # 2015
+        [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+        index=0,  # 2016
     )
 
     end_train = st.selectbox(
         "Selecione até que ano os dados serão treinados:",
-        [2020, 2021, 2022],
-        index=0,  # 2020
+        [2020, 2021, 2022, 2023, 2024, 2025],
+        index=2,  # 2022
     )
 
     variable_labels = st.multiselect(
