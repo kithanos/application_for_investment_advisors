@@ -15,14 +15,49 @@ O usuário seleciona o ativo, o período dos dados, as variáveis (indicadores t
 
 Os hiperparâmetros de cada modelo são configurados no arquivo `parameters.json`.
 
-## Como executar
+## Pré-requisitos
+
+- **Python 3.12** (ou superior)
+- Conexão com a **internet** — o app baixa os preços dos ativos via Yahoo Finance a cada execução.
+
+## Instalação (primeira vez)
+
+Recomenda-se usar um ambiente virtual. No **PowerShell** (Windows), a partir da pasta do projeto:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+No Linux/macOS:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+> **TA-Lib no Windows:** versões recentes já possuem *wheel* pré-compilado no PyPI, então o `pip install` normalmente funciona sem instalar o binário C manualmente.
+
+## Como executar
+
+Com o ambiente virtual ativado:
+
+```powershell
 streamlit run streamlit_app.py
 ```
 
-> No Windows, o `TA-Lib` normalmente requer o binário C ou o wheel pré-compilado instalado previamente.
+O navegador abre automaticamente em **http://localhost:8501**. Para parar o servidor, pressione `Ctrl+C` no terminal.
+
+Sem ativar o ambiente, é possível rodar em uma linha só (Windows):
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run streamlit_app.py
+```
+
+> Se o Windows bloquear o `Activate.ps1` por política de execução, rode uma vez:
+> `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` (ou use a forma de uma linha só acima).
 
 ## Estrutura
 
