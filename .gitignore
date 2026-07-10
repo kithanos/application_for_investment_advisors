@@ -1,0 +1,31 @@
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuração local do Streamlit
+.streamlit/secrets.toml
+
+# Distribuição / build
+build/
+dist/
+*.egg-info/
+
+# Cache de ferramentas
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Ambiente
+.env
+
+# Sistema operacional / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
