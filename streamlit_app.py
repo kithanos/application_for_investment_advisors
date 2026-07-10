@@ -58,6 +58,61 @@ MODEL_OPTIONS = {
     "Rede Neural": "mlp",
 }
 
+# Descrições usadas na seção "Help" (chaves alinhadas a VARIABLE_OPTIONS/MODEL_OPTIONS)
+VARIABLE_HELP = {
+    "Volatilidade": "Desvio-padrão dos retornos dos últimos 20 pregões, anualizado. "
+    "Mede o quanto o preço oscila — quanto maior, mais arriscado/instável o ativo.",
+    "Relative Strength Index": "RSI (14 períodos). Oscilador de 0 a 100 que indica se o ativo "
+    "está sobrecomprado (acima de ~70) ou sobrevendido (abaixo de ~30).",
+    "Simple Moving Average 50 days": "Média móvel simples do preço nos últimos 50 pregões. "
+    "Suaviza o preço e mostra a tendência de médio prazo.",
+    "Simple Moving Average 200 days": "Média móvel simples do preço nos últimos 200 pregões. "
+    "Referência clássica de tendência de longo prazo.",
+    "Doji Star": "Padrão de candle (vela) de reversão. Codificado como +1 (alta), -1 (baixa) "
+    "ou 0 (ausente).",
+    "Hagingman": "Padrão de candle 'Hanging Man' (enforcado), sinal de possível reversão de "
+    "alta para baixa. Codificado como +1, -1 ou 0.",
+    "Average Directional Movement Index": "ADX (14 períodos). Mede a FORÇA da tendência "
+    "(não a direção) — valores altos indicam tendência forte.",
+    "Kaufman Adaptive Moving Average 50 days": "KAMA (50 períodos). Média móvel que se adapta à "
+    "volatilidade: reage rápido em tendência e filtra ruído em mercado lateral.",
+    "Kaufman Adaptive Moving Average 200 days": "KAMA (200 períodos). Versão de longo prazo da "
+    "média móvel adaptativa de Kaufman.",
+    "Weighted Moving Average 50 days": "Média móvel ponderada (50 períodos), que dá mais peso aos "
+    "preços mais recentes do que a média simples.",
+    "Weighted Moving Average 200 days": "Média móvel ponderada de longo prazo (200 períodos).",
+    "Average Directional Movement Index Rating": "ADXR. Versão suavizada do ADX, usada para "
+    "confirmar a força da tendência.",
+    "Rate of change": "ROC (14 períodos). Variação percentual do preço em relação a 14 pregões "
+    "atrás — um indicador de momento (momentum).",
+    "Hilbert Transform - Dominant Cycle Period": "Estima o comprimento do ciclo dominante do "
+    "preço usando a Transformada de Hilbert.",
+    "Three Inside Up/Down": "Padrão de candle de reversão de três velas. Codificado como +1, -1 "
+    "ou 0.",
+    "Rickshaw Man": "Padrão de candle de indecisão (corpo pequeno, sombras longas). Codificado "
+    "como +1, -1 ou 0.",
+}
+
+MODEL_HELP = {
+    "Logistic Regression": "Regressão Logística — modelo linear que estima a probabilidade de o "
+    "ativo subir. Simples, rápido e fácil de interpretar; bom ponto de partida.",
+    "Decision Tree": "Árvore de Decisão — sequência de perguntas do tipo 'se/então' sobre os "
+    "indicadores. Fácil de visualizar, mas sozinha tende a decorar os dados (overfitting).",
+    "Random Forest": "Floresta Aleatória — combina muitas árvores de decisão e faz uma votação. "
+    "Geralmente mais precisa e estável do que uma árvore única.",
+    "Rede Neural": "Rede Neural (MLP) — rede com camadas de neurônios capaz de captar relações "
+    "não-lineares complexas. Mais poderosa, porém exige mais dados e é menos interpretável.",
+}
+
+METRIC_HELP = {
+    "Recall": "Dos pregões que realmente subiram, qual fração o modelo acertou. Recall alto = "
+    "perde poucas altas.",
+    "Precision": "Das vezes que o modelo disse 'Compre!', qual fração de fato subiu. Precision "
+    "alta = poucos alarmes falsos.",
+    "f1-score": "Média harmônica entre Precision e Recall — equilíbrio entre os dois.",
+    "Acurácia": "Proporção total de previsões corretas (altas e quedas) sobre o conjunto de teste.",
+}
+
 
 @st.cache_data
 def load_ticker_names():
@@ -159,6 +214,58 @@ lista_ativos = df_ticker_names["Ticker_CompanyNames"].drop_duplicates().tolist()
 
 st.title("Aplicação de ML para Assessores de Investimento")
 st.write("Ferramenta para aplicação de modelos de ML em dados de ativos da bolsa brasileira.")
+
+with st.expander("❓ Help — Como a ferramenta funciona", expanded=False):
+    tab_como, tab_vars, tab_modelos, tab_metricas = st.tabs(
+        ["Como funciona", "Variáveis", "Modelos", "Métricas"]
+    )
+
+    with tab_como:
+        st.markdown(
+            """
+Esta ferramenta tenta prever a **direção do próximo pregão** de um ativo da bolsa brasileira
+(vai subir ou não) e transforma essa previsão em uma recomendação **Compre! / Não Compre!**.
+
+**Passo a passo do que acontece quando você ajusta as opções na barra lateral:**
+
+1. **Download dos dados** — baixa todo o histórico de preços do ativo (`{ticker}.SA`) no
+   Yahoo Finance e filtra a partir do *ano de download* escolhido.
+2. **Cálculo dos indicadores** — a partir dos preços, calcula os indicadores técnicos
+   (as *variáveis* — veja a aba correspondente).
+3. **Definição do alvo** — para cada dia, o alvo é `1` se o retorno do **dia seguinte** for
+   positivo, e `0` caso contrário.
+4. **Treino e teste** — os dados são escalados e divididos por data: tudo até o *ano de treino*
+   é usado para **treinar** o modelo; o período posterior é usado para **testar**. O scaler é
+   ajustado apenas no treino, para não "espiar" o futuro.
+5. **Recomendação** — o modelo faz a previsão para a amostra mais recente. Se prevê alta,
+   mostra **Compre!**; caso contrário, **Não Compre!**.
+
+> ⚠️ **Aviso:** é uma estimativa estatística de curtíssimo prazo, baseada apenas em indicadores
+> técnicos. **Não é garantia de resultado** nem recomendação formal de investimento.
+"""
+        )
+
+    with tab_vars:
+        st.markdown(
+            "As *variáveis* são os indicadores técnicos que alimentam o modelo. "
+            "Selecione uma ou mais na barra lateral:"
+        )
+        for label, desc in VARIABLE_HELP.items():
+            st.markdown(f"- **{label}** — {desc}")
+
+    with tab_modelos:
+        st.markdown("Modelos de machine learning disponíveis para a previsão:")
+        for label, desc in MODEL_HELP.items():
+            st.markdown(f"- **{label}** — {desc}")
+
+    with tab_metricas:
+        st.markdown(
+            "As métricas abaixo avaliam o desempenho do modelo no **período de teste** "
+            "(dados que ele não viu durante o treino):"
+        )
+        for label, desc in METRIC_HELP.items():
+            st.markdown(f"- **{label}** — {desc}")
+
 st.divider()
 
 with st.sidebar:
@@ -234,23 +341,35 @@ df_features = build_features(df_prices)
 selected = list_variables + ["Alvo"]
 df_selected = df_features[selected].copy()
 
-scaler = MinMaxScaler(feature_range=(0, 1))
-scaled = scaler.fit_transform(df_selected.drop("Alvo", axis=1).values)
-df_scaled = pd.DataFrame(
-    scaled, index=df_selected.index, columns=df_selected.drop("Alvo", axis=1).columns
-)
-df_scaled["Alvo"] = df_selected["Alvo"]
-
 if end_train <= year:
     end_train = year + 1
 
-df_train = df_scaled.loc[df_scaled.index <= f"{end_train}-01-01"]
-df_test = df_scaled.loc[df_scaled.index > f"{end_train}-01-01"]
+# Divide treino/teste ANTES de escalar, para evitar vazamento de dados
+# (o scaler é ajustado apenas no treino e depois aplicado ao teste).
+df_train_raw = df_selected.loc[df_selected.index <= f"{end_train}-01-01"]
+df_test_raw = df_selected.loc[df_selected.index > f"{end_train}-01-01"]
 
-x_train = df_train.drop(["Alvo"], axis=1)
-y_train = df_train["Alvo"]
-x_test = df_test.drop(["Alvo"], axis=1)
-y_test = df_test["Alvo"]
+if df_test_raw.empty:
+    st.error(
+        "Não há dados de teste para o corte escolhido. "
+        "Selecione um ano de treino anterior ao último ano disponível."
+    )
+    st.stop()
+
+x_train_raw, y_train = df_train_raw.drop("Alvo", axis=1), df_train_raw["Alvo"]
+x_test_raw, y_test = df_test_raw.drop("Alvo", axis=1), df_test_raw["Alvo"]
+
+scaler = MinMaxScaler(feature_range=(0, 1))
+x_train = pd.DataFrame(
+    scaler.fit_transform(x_train_raw.values),
+    index=x_train_raw.index,
+    columns=x_train_raw.columns,
+)
+x_test = pd.DataFrame(
+    scaler.transform(x_test_raw.values),
+    index=x_test_raw.index,
+    columns=x_test_raw.columns,
+)
 
 model = build_model(model_choiced, params, x_train, y_train)
 y_pred = model.predict(x_test)

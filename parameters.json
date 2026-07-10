@@ -12,7 +12,7 @@
 				"max_iter": 100,
 				"n_jobs": null,
 				"penalty": "l2",
-				"random_state": null,
+				"random_state": 42,
 				"solver": "liblinear",
 				"tol": 0.0001,
 				"verbose": 0,
@@ -34,7 +34,7 @@
 				"min_samples_leaf": 1,
 				"min_samples_split": 3,
 				"min_weight_fraction_leaf": 0.0,
-				"random_state": null,
+				"random_state": 42,
 				"splitter": "best"
 			}
 		],
@@ -56,7 +56,7 @@
 				"n_estimators": 100,
 				"n_jobs": null,
 				"oob_score": false,
-				"random_state": null,
+				"random_state": 42,
 				"verbose": 0,
 				"warm_start": false
 			}
@@ -79,7 +79,7 @@
 				"n_iter_no_change": 10,
 				"nesterovs_momentum": true,
 				"power_t": 0.5,
-				"random_state": null,
+				"random_state": 42,
 				"shuffle": true,
 				"solver": "adam",
 				"tol": 0.0001,
